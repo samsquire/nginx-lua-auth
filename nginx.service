@@ -1,0 +1,16 @@
+[Unit]
+Description=The NGINX HTTP and reverse proxy server
+After=syslog.target network-online.target remote-fs.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+PIDFile=/run/nginx.pid
+ExecStart=/opt/nginx/sbin/nginx
+ExecReload=/opt/nginx/sbin/nginx -s reload
+ExecStop=/bin/kill -sSIGQUIT $MAINPID
+PrivateTmp=true
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
