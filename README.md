@@ -1,6 +1,6 @@
 # nginx-lua-auth
 
-You can create an incredibly scalable hybrid static website by using Lua with Nginx.
+You can create an incredibly scalable hybrid static website by using Lua with Nginx. This uses the [lua-io-nginx-module module](https://github.com/tokers/lua-io-nginx-module#fileread)
 
 Users can be logged in but still reach 13,000 requests per second this is due to the website being partially static.
 
@@ -49,6 +49,60 @@ git clone git@github.com:vision5/ngx_devel_kit.git
 
 ./configure --prefix=/opt/nginx          --with-ld-opt="-Wl,-rpath,/usr/local/lib/ -lpcre"          --add-module=/home/sam/ngx_devel_kit          --add-module=/home/sam/lua-nginx-module  --with-threads --add-module=/home/sam/lua-io-nginx-module --with-pcre=/home/sam/Downloads/pcre2-10.38 --add-module=/home/sam/ngx_http_auth_pam_module
 ```
+
+Follow [these openresty Lua instructions](https://github.com/openresty/lua-nginx-module/).
+
+Copied the instructions as a backup.
+
+I uses the latest nginx sourcecode. 
+
+```
+nginx version: nginx/1.23.0
+built by gcc 11.2.0 (Ubuntu 11.2.0-19ubuntu1) 
+configure arguments: --prefix=/opt/nginx --with-ld-opt='-Wl,-rpath,/usr/local/lib/ -lpcre' --add-module=/home/sam/ngx_devel_kit --add-module=/home/sam/lua-nginx-module --with-threads --add-module=/home/sam/lua-io-nginx-module --with-pcre=/home/sam/Downloads/pcre2-10.38 --add-module=/home/sam/ngx_http_auth_pam_module
+
+```
+
+```
+ wget 'https://openresty.org/download/nginx-1.19.3.tar.gz'
+ tar -xzvf nginx-1.19.3.tar.gz
+ cd nginx-1.19.3/
+
+ # tell nginx's build system where to find LuaJIT 2.0:
+ export LUAJIT_LIB=/path/to/luajit/lib
+ export LUAJIT_INC=/path/to/luajit/include/luajit-2.0
+
+ # tell nginx's build system where to find LuaJIT 2.1:
+ export LUAJIT_LIB=/path/to/luajit/lib
+ export LUAJIT_INC=/path/to/luajit/include/luajit-2.1
+
+ # Here we assume Nginx is to be installed under /opt/nginx/.
+ ./configure --prefix=/opt/nginx \
+         --with-ld-opt="-Wl,-rpath,/path/to/luajit/lib" \
+         --add-module=/path/to/ngx_devel_kit \
+         --add-module=/path/to/lua-nginx-module
+
+ # Note that you may also want to add `./configure` options which are used in your
+ # current nginx build.
+ # You can get usually those options using command nginx -V
+
+ # you can change the parallelism number 2 below to fit the number of spare CPU cores in your
+ # machine.
+ make -j2
+ make install
+
+ # Note that this version of lug-nginx-module not allow to set `lua_load_resty_core off;` any more.
+ # So, you have to install `lua-resty-core` and `lua-resty-lrucache` manually as below.
+
+ cd lua-resty-core
+ make install PREFIX=/opt/nginx
+ cd lua-resty-lrucache
+ make install PREFIX=/opt/nginx
+
+ # add necessary `lua_package_path` directive to `nginx.conf`, in the http context
+```
+
+WARNING: To get lua-resty-core and lua-resty-lrucache to install, I had to move the files the make install of them did into /usr/local/share/lua/5.1/resty. The make install installs the files into the wrong directory that nginx doesn't look at.
 
 Install. Install gunicorn.
 
